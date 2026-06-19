@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stopwatch</title>
+  
+  <!-- SEO Meta Tags -->
+  <meta name="description" content="Stopwatch is a modern, responsive, and beautifully animated stopwatch web application with custom theme settings. Track lap times and organize intervals.">
+  <meta name="keywords" content="stopwatch, timer, productivity tracker, lap tracker, dark mode stopwatch">
+  <meta name="author" content="Amarnath">
+  
+  <!-- Iconify Icon Component -->
+  <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+  
+  <!-- Tailwind CSS Play CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Tailwind Configuration for Dark Mode class -->
+  <script>
+    tailwind.config = {
+      darkMode: 'class'
+    }
+  </script>
+  
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="min-h-screen bg-[#FFF9F5] dark:bg-[#121214] flex items-center justify-center p-4 md:p-12 overflow-y-auto relative transition-colors duration-300">
+
+  <!-- Ambient Background Decor (Pointer events none + overflow hidden prevents mobile horizontal scrolling issues) -->
+  <div class="absolute inset-0 overflow-hidden pointer-events-none z-0" aria-hidden="true">
+    <div id="bg-blob-1" class="absolute -top-20 -left-20 w-80 h-80 bg-[#FF8066]/10 dark:bg-[#FF8066]/15 organic-shape float" style="animation-delay: 0s"></div>
+    <div id="bg-blob-2" class="absolute top-1/4 -right-10 w-60 h-60 bg-[#B2F0D1]/20 dark:bg-[#B2F0D1]/15 organic-shape float" style="animation-delay: 2s"></div>
+    <div id="bg-blob-3" class="absolute -bottom-20 left-1/3 w-96 h-96 bg-[#FFD93D]/10 dark:bg-[#FFD93D]/15 organic-shape float" style="animation-delay: 4s"></div>
+  </div>
+
+  <!-- Main Container -->
+  <main class="relative z-10 w-full max-w-6xl grid grid-cols-1 lg:grid-cols-12 gap-12 my-6">
+    
+    <!-- Stopwatch Display and Main Controls -->
+    <section class="lg:col-span-7 flex flex-col items-center justify-center" aria-label="Stopwatch Timer">
+      
+      <!-- Brand Logo & Theme Switcher Header -->
+      <div class="mb-12 flex items-center justify-between w-full max-w-[290px] min-[375px]:max-w-[350px] sm:max-w-[480px] bounce-in">
+        <div class="flex items-center gap-4">
+          <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-[#FF8066] to-[#FFD93D] flex items-center justify-center shadow-lg" aria-hidden="true">
+            <iconify-icon icon="lucide:timer" class="text-white text-2xl"></iconify-icon>
+          </div>
+          <h1 class="text-3xl font-bold tracking-tight text-[#4A4E69] dark:text-gray-200">Stop<span class="text-[#FF8066]">watch</span></h1>
+        </div>
+        
+        <!-- Dark/Light Theme Toggle Button -->
+        <button id="themeToggleBtn" 
+                class="w-12 h-12 rounded-full bg-white dark:bg-[#1E1E24] flex items-center justify-center shadow-md hover:shadow-xl hover:scale-110 active:scale-90 transition-all text-[#4A4E69]/60 dark:text-gray-300 hover:text-[#FF8066] dark:hover:text-[#FF8066]"
+                title="Toggle dark/light mode"
+                aria-label="Toggle dark/light mode">
+          <iconify-icon id="themeIcon" icon="lucide:sun" class="text-2xl"></iconify-icon>
+        </button>
+      </div>
+
+      <!-- Radial Organic Timer Display (Resized: Responsive Bigger) -->
+      <div class="relative w-[290px] h-[290px] min-[375px]:w-[350px] min-[375px]:h-[350px] sm:w-[480px] sm:h-[480px] flex items-center justify-center bounce-in">
+        <svg viewBox="0 0 400 400" class="absolute inset-0 w-full h-full drop-shadow-2xl" aria-hidden="true">
+          <!-- Main sphere - SVG fill updated dynamically via CSS for dark mode -->
+          <circle cx="200" cy="200" r="180" fill="white" class="organic-shape transition-all duration-300" id="timerBackingCircle" />
+          <circle cx="200" cy="200" r="180" fill="none" stroke="#F5F5F5" stroke-width="12" stroke-linecap="round" id="timerTrackCircle" class="transition-all duration-300" />
+          <!-- The stroke-dashoffset is updated dynamically in JS to fill the circle -->
+          <path d="M200,20 A180,180 0 0,1 200,380 A180,180 0 0,1 200,20" 
+                fill="none" 
+                stroke="url(#gradBloom)" 
+                stroke-width="12" 
+                stroke-linecap="round" 
+                class="progress-path" 
+                id="timerCircle" />
+        </svg>
+        <defs>
+          <linearGradient id="gradBloom" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#FF8066;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#FFD93D;stop-opacity:1" />
+          </linearGradient>
+        </defs>
+        
+        <!-- Timer Readout -->
+        <div class="z-10 text-center px-4 w-full">
+          <span id="timerDisplay" class="timer-display text-5xl min-[375px]:text-6xl sm:text-8xl font-bold text-[#4A4E69] dark:text-gray-100 select-none block truncate">00:00.00</span>
+          <div id="statusLabel" class="flex items-center justify-center gap-2 mt-2 opacity-50 transition-opacity duration-300">
+            <iconify-icon icon="lucide:leaf" class="text-green-400"></iconify-icon>
+            <span id="statusText" class="text-sm font-semibold uppercase tracking-widest text-[#4A4E69] dark:text-gray-300">Paused</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Button Controls -->
+      <div class="mt-16 flex items-center gap-8 bounce-in" style="animation-delay: 0.2s">
+        <!-- Reset Button -->
+        <button id="resetBtn" 
+                class="group w-16 h-16 rounded-full bg-white dark:bg-[#1E1E24] flex items-center justify-center shadow-md hover:shadow-xl hover:scale-110 active:scale-90 transition-all text-[#4A4E69]/40 dark:text-gray-400 hover:text-[#FF8066] dark:hover:text-[#FF8066]"
+                title="Reset stopwatch"
+                aria-label="Reset stopwatch">
+          <iconify-icon icon="lucide:refresh-cw" class="text-2xl group-hover:rotate-180 transition-transform duration-500"></iconify-icon>
+        </button>
+
+        <!-- Start / Pause Button -->
+        <button id="startStopBtn" 
+                class="w-24 h-24 rounded-full bg-gradient-to-tr from-[#FF8066] to-[#FFD93D] flex items-center justify-center text-white shadow-xl hover:scale-110 active:scale-95 transition-all relative"
+                title="Start stopwatch"
+                aria-label="Start stopwatch">
+          <span id="buttonShadow" class="absolute inset-0 rounded-full bg-[#FF8066] opacity-30"></span>
+          <iconify-icon icon="lucide:play" class="text-4xl relative z-10" id="playIcon"></iconify-icon>
+        </button>
+
+        <!-- Lap Record Button -->
+        <button id="lapBtn" 
+                class="w-16 h-16 rounded-full bg-white dark:bg-[#1E1E24] flex items-center justify-center shadow-md hover:shadow-xl hover:scale-110 active:scale-90 transition-all text-[#4A4E69]/40 dark:text-gray-400 hover:text-[#B2F0D1] dark:hover:text-[#B2F0D1]"
+                title="Record lap time"
+                aria-label="Record lap time">
+          <iconify-icon icon="lucide:flag" class="text-2xl"></iconify-icon>
+        </button>
+      </div>
+    </section>
+
+    <!-- Lap History Tracker Side Panel -->
+    <section class="lg:col-span-5 flex flex-col bg-white/60 dark:bg-[#1E1E24]/60 backdrop-blur-xl rounded-[3rem] p-8 border border-white dark:border-gray-800 shadow-2xl h-[600px] lg:h-[700px] bounce-in" 
+             style="animation-delay: 0.3s"
+             aria-label="Lap History Panel">
+      
+      <!-- Panel Header -->
+      <div class="flex items-center justify-between mb-8">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-2xl bg-[#B2F0D1] dark:bg-[#B2F0D1]/20 flex items-center justify-center" aria-hidden="true">
+            <iconify-icon icon="lucide:scroll-text" class="text-green-700 dark:text-[#B2F0D1]"></iconify-icon>
+          </div>
+          <h2 class="text-2xl font-bold text-[#4A4E69] dark:text-gray-200">Lap History</h2>
+        </div>
+        <span id="lapCount" class="px-4 py-1 rounded-full bg-[#FF8066]/10 dark:bg-[#FF8066]/20 text-[#FF8066] text-sm font-bold">0 Laps</span>
+      </div>
+
+      <!-- History List (Scrollable) -->
+      <div id="lapList" class="flex-1 overflow-y-auto pr-2 space-y-4">
+        <!-- Default Empty State -->
+        <div id="emptyState" class="h-full flex flex-col items-center justify-center text-center opacity-30 dark:opacity-40">
+          <iconify-icon icon="lucide:flower-2" class="text-6xl mb-4 text-[#4A4E69] dark:text-gray-300"></iconify-icon>
+          <p class="text-lg font-medium text-[#4A4E69] dark:text-gray-300">Start the clock to<br>watch the garden grow.</p>
+        </div>
+      </div>
+
+      <!-- Total Cumulative Time Footer -->
+      <div class="mt-6 pt-6 border-t border-gray-100 dark:border-gray-800 flex justify-between items-center">
+        <span class="text-xs font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500">Total Journey</span>
+        <span id="totalDisplay" class="timer-display text-xl font-bold text-[#FF8066]">00:00.00</span>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Client Application Script -->
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,144 @@
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+  --coral: #FF8066;
+  --mint: #B2F0D1;
+  --sun: #FFD93D;
+  --bg-warm: #FFF9F5;
+  --dark-text: #4A4E69;
+}
+
+body {
+  font-family: 'Quicksand', sans-serif;
+  background-color: var(--bg-warm);
+  color: var(--dark-text);
+  overflow-x: hidden;
+}
+
+/* Smooth transition for theme switching */
+body, button, section, h1, h2, span, circle, div {
+  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease, fill 0.3s ease, stroke 0.3s ease;
+}
+
+.timer-display {
+  /* Use Outfit as a modern tabular-num fallback if PramukhRounded is unavailable */
+  font-family: 'Outfit', 'Quicksand', sans-serif;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+/* Organic smooth-changing shape */
+.organic-shape {
+  border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
+}
+
+/* Entry Animation */
+.bounce-in {
+  animation: bounceIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+}
+
+@keyframes bounceIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.9) translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Floating animation for decorative backgrounds */
+.float {
+  animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+  0% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-15px) rotate(3deg);
+  }
+  100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+}
+
+/* Dasharray matches the svg circumference, updated dynamically in js */
+.progress-path {
+  transition: stroke-dashoffset 0.1s linear, stroke 0.3s ease;
+}
+
+/* SVG Dark Mode overrides */
+.dark #timerBackingCircle {
+  fill: #1E1E24;
+}
+
+.dark #timerTrackCircle {
+  stroke: #2D2D39;
+}
+
+/* Pulse animation on play button shadow */
+.pulse-ring {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(255, 128, 102, 0.5);
+  }
+  70% {
+    transform: scale(1.05);
+    box-shadow: 0 0 0 25px rgba(255, 128, 102, 0);
+  }
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(255, 128, 102, 0);
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #E9EDC9;
+  border-radius: 10px;
+  border: 2px solid white;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #3A3A4A;
+  border: 2px solid #121214;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #ccd5ae;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #4A4A5A;
+}
+
+/* Add custom animations for list insertions */
+@keyframes slideDown {
+  0% {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.lap-item-anim {
+  animation: slideDown 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
